@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CoffeeShop.Domain
+﻿namespace CoffeeShop.Domain
 {
     public sealed record Coffee : ProductItem
     {
@@ -12,9 +6,9 @@ namespace CoffeeShop.Domain
 
         public CoffeeType CoffeeType { get; set; }
 
-        public string Origin { get; set; }
+        public string? Origin { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public DateTime ExpirationDate { get; set; }
 

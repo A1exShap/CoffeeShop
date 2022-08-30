@@ -5,7 +5,9 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoffeeShop", "CoffeeShop\CoffeeShop.csproj", "{FD9AF15E-8F7D-41DC-999C-119BEC136475}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffeeShop.Domain", "CoffeeShop.Domain\CoffeeShop.Domain.csproj", "{80A3762F-60CD-451C-96A3-A7CDF71F7F08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoffeeShop.Domain", "CoffeeShop.Domain\CoffeeShop.Domain.csproj", "{80A3762F-60CD-451C-96A3-A7CDF71F7F08}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoffeeShop.DataAccess", "CoffeeShop.DataAccess\CoffeeShop.DataAccess.csproj", "{B5A5F553-F8D2-435D-BF92-D0DE4C793A6B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{80A3762F-60CD-451C-96A3-A7CDF71F7F08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80A3762F-60CD-451C-96A3-A7CDF71F7F08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80A3762F-60CD-451C-96A3-A7CDF71F7F08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5A5F553-F8D2-435D-BF92-D0DE4C793A6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5A5F553-F8D2-435D-BF92-D0DE4C793A6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5A5F553-F8D2-435D-BF92-D0DE4C793A6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5A5F553-F8D2-435D-BF92-D0DE4C793A6B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
