@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CoffeeShop.DataAccess.Properties {
+namespace CoffeeStore.DataAccess.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace CoffeeShop.DataAccess.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("CoffeeShop.DataAccess.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("CoffeeStore.DataAccess.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace CoffeeShop.DataAccess.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Server=DESKTOP-IVFJ6ER\\SQLEXPRESS;Database=CoffeeStore;User Id=sa;Password=1;TrustServerCertificate=True.
+        ///   Ищет локализованную строку, похожую на &quot;Server=DESKTOP-IVFJ6ER\\SQLEXPRESS;Database=CoffeeStore;User Id=sa;Password=1;TrustServerCertificate=True&quot;.
         /// </summary>
         internal static string ConnectionString {
             get {

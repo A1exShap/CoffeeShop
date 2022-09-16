@@ -1,0 +1,43 @@
+﻿@page "/Products"
+@using CoffeeStore.UI.Data.Models
+@using System.Text.Json
+
+@inject HttpClient HttpClient
+
+<h3>Products</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Type</th>
+            <th>Price</th>
+        </tr>
+    </thead>    
+    <tbody>
+        @foreach (var product in _products.OrderBy(prod => prod.Name))
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.ProductType.ToString()</td>
+                <td>@product.SellingPrice</td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+@code 
+{
+    private IEnumerable<IProductItem> _products = Enumerable.Empty<IProductItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        using var response = await HttpClient.GetAsync("/Products");
+        var content = await response.Content.ReadAsStringAsync();
+
+        _products = JsonSerializer.Deserialize<ProductItem[]>(content) ?? Array.Empty<ProductItem>();
+    }
+}

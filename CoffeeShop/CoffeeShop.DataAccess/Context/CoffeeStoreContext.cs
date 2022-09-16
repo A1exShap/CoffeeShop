@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CoffeeStore.DataAccess.Dto;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using CoffeeShop.DataAccess.Models;
 
-namespace CoffeeShop.DataAccess.Context
+namespace CoffeeStore.DataAccess.Context
 {
     public partial class CoffeeStoreContext : DbContext
     {
@@ -17,36 +14,33 @@ namespace CoffeeShop.DataAccess.Context
         {
         }
 
-        public virtual DbSet<Client>? Clients { get; set; }
-        public virtual DbSet<Operation>? Operations { get; set; }
-        public virtual DbSet<OperationType>? OperationTypes { get; set; }
-        public virtual DbSet<Order>? Orders { get; set; }
-        public virtual DbSet<OrderDetail>? OrderDetails { get; set; }
-        public virtual DbSet<OrderStatus>? OrderStatuses { get; set; }
-        public virtual DbSet<Origin>? Origins { get; set; }
-        public virtual DbSet<Price>? Prices { get; set; }
-        public virtual DbSet<Product>? Products { get; set; }
-        public virtual DbSet<ProductOperation>? ProductOperations { get; set; }
-        public virtual DbSet<ProductProperty>? ProductProperties { get; set; }
-        public virtual DbSet<ProductPropertyValue>? ProductPropertyValues { get; set; }
-        public virtual DbSet<ProductType>? ProductTypes { get; set; }
-        public virtual DbSet<PropertyEnum>? PropertyEnums { get; set; }
-        public virtual DbSet<PropertyEnumValue>? PropertyEnumValues { get; set; }
-        public virtual DbSet<VwClientsActivity>? VwClientsActivities { get; set; }
+        public virtual DbSet<Client> Clients { get; set; } = null!;
+        public virtual DbSet<Operation> Operations { get; set; } = null!;
+        public virtual DbSet<OperationType> OperationTypes { get; set; } = null!;
+        public virtual DbSet<Order> Orders { get; set; } = null!;
+        public virtual DbSet<OrderDetail> OrderDetails { get; set; } = null!;
+        public virtual DbSet<OrderStatus> OrderStatuses { get; set; } = null!;
+        public virtual DbSet<Price> Prices { get; set; } = null!;
+        public virtual DbSet<Product> Products { get; set; } = null!;
+        public virtual DbSet<ProductOperation> ProductOperations { get; set; } = null!;
+        public virtual DbSet<ProductProperty> ProductProperties { get; set; } = null!;
+        public virtual DbSet<ProductPropertyValue> ProductPropertyValues { get; set; } = null!;
+        public virtual DbSet<ProductType> ProductTypes { get; set; } = null!;
+        public virtual DbSet<PropertyEnum> PropertyEnums { get; set; } = null!;
+        public virtual DbSet<PropertyEnumValue> PropertyEnumValues { get; set; } = null!;
+        public virtual DbSet<PropertyValueType> PropertyValueTypes { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(Properties.Resources.ConnectionString);
-                //optionsBuilder.UseSqlServer("Server=DESKTOP-IVFJ6ER\\SQLEXPRESS;Database=CoffeeStore;User Id=sa;Password=1;TrustServerCertificate=True");
+                //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=DESKTOP-IVFJ6ER\\SQLEXPRESS;Database=CoffeeStore;User Id=sa;Password=1;TrustServerCertificate=True");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
-
             modelBuilder.Entity<Client>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
@@ -136,15 +130,6 @@ namespace CoffeeShop.DataAccess.Context
                 entity.Property(e => e.Name).HasMaxLength(30);
             });
 
-            modelBuilder.Entity<Origin>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.Name)
-                    .HasMaxLength(10)
-                    .IsFixedLength();
-            });
-
             modelBuilder.Entity<Price>(entity =>
             {
                 entity.HasKey(e => new { e.ProductId, e.Date });
@@ -196,11 +181,11 @@ namespace CoffeeShop.DataAccess.Context
 
                 entity.Property(e => e.Name).HasMaxLength(200);
 
-                entity.HasOne(d => d.Product)
-                    .WithMany(p => p.ProductProperties)
-                    .HasForeignKey(d => d.ProductId)
+                entity.HasOne(d => d.ProductType)
+                    .WithMany()
+                    .HasForeignKey(d => d.ProductTypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ProductProperties_Products");
+                    .HasConstraintName("FK_ProductProperties_ProductTypes");
             });
 
             modelBuilder.Entity<ProductPropertyValue>(entity =>
@@ -258,15 +243,9 @@ namespace CoffeeShop.DataAccess.Context
                     .HasConstraintName("FK_EnumValues_Enums");
             });
 
-            modelBuilder.Entity<VwClientsActivity>(entity =>
+            modelBuilder.Entity<PropertyValueType>(entity =>
             {
-                entity.HasNoKey();
-
-                entity.ToView("vw_ClientsActivity");
-
-                entity.Property(e => e.Name).HasMaxLength(100);
-
-                entity.Property(e => e.Surname).HasMaxLength(200);
+                entity.Property(e => e.Name).HasMaxLength(50);
             });
 
             OnModelCreatingPartial(modelBuilder);

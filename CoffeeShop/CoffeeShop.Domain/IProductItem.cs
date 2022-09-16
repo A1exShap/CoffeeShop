@@ -1,8 +1,10 @@
-﻿namespace CoffeeShop.Domain
+﻿namespace CoffeeStore.Domain
 {
     public interface IProductItem
     {
         Guid Id { get; }
+
+        string NomenclatureNumber { get; }
 
         ProductType ProductType { get; }
 

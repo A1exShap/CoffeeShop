@@ -1,8 +1,9 @@
-﻿namespace CoffeeShop.Domain
+﻿namespace CoffeeStore.Domain
 {
     public enum ProductType
     {
-        Beans = 0,
-        CoggeeMachine = 1
+        GroundedCoffee = 0,
+        CoffeeBeans = 1,
+        CoffeeMachine = 2,
     }
 }

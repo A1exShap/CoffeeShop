@@ -1,4 +1,4 @@
-﻿namespace CoffeeShop.Domain
+﻿namespace CoffeeStore.Domain
 {
     public enum CoffeeMachineType
     {
