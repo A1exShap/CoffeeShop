@@ -1,12 +1,19 @@
 using CoffeeStore.UI.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Blazorise;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+builder.Services.AddEmptyProviders();
+builder.Services.AddBlazorise();
+builder.Services.AddControllers();
+builder.Services.AddScoped<Blazorise.Modules.IJSSelectModule, Blazorise.Modules.JSSelectModule>();
+
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration["BackendUrl"]) });
 

@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CoffeeStore.Domain
+namespace CoffeeStore.UI.Data.Models
 {
-    public sealed record CoffeeMachineProduct : ProductItem
+    public record CoffeeMachineProduct : ProductItem
     {
         [JsonPropertyName("guaranteePeriod")]
         public int GuaranteePeriod { get; set; }

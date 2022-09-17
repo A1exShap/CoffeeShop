@@ -37,14 +37,19 @@ namespace CoffeeStore.DataAccess.Repositories.Implementation
             return GetProductsByFilter(prod => prod.ProductTypeId == productTypeId);
         }
 
-        public Task Upsert(Product product)
+        public async Task<Guid> Upsert(Product product)
         {
             if (_dbContext.Products.Any(x => x.Id == product.Id))
                 _dbContext.Update(product);
             else
+            {
+                product.Id = Guid.NewGuid();
                 _dbContext.Add(product);
+            }
 
-            return _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
+
+            return product.Id;
         }
 
         private IQueryable<Product> GetAllProductsInternal()

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace CoffeeStore.WebApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("Products/{typeId?}")]
     public sealed class ProductsController : ControllerBase
     {
         private readonly IProductsService _productsService;
@@ -16,7 +16,7 @@ namespace CoffeeStore.WebApi.Controllers
             _productsService = productService;
         }
 
-        [HttpGet(Name = "products")]
+        [HttpGet("all")]
         public async Task<ActionResult<ProductItem[]>> GetAllProducts()
         {
             var products = await _productsService.GetAllProducts();
@@ -24,20 +24,21 @@ namespace CoffeeStore.WebApi.Controllers
             return new JsonResult(products);
         }
 
-        [HttpPost(Name = "add")]
+        [HttpPost("add")]
         public async Task AddProduct()
         {
+            if (!Guid.TryParse(Request.RouteValues["typeId"].ToString(), out Guid productTypeId)) return;
+            var productType = await _productsService.GetProductType(productTypeId);
+
             using var streamReader = new StreamReader(Request.Body);
             var requestBody = await streamReader.ReadToEndAsync();
-
             dynamic? product = JsonConvert.DeserializeObject(requestBody);
             
-            if (product is null) return;
+            if (productType == ProductType.CoffeeMachine)
+                await _productsService.Upsert(JsonConvert.DeserializeObject<CoffeeMachineProduct>(product));
 
-            if (product.productType != null && product.productType == "2")
-                await _productsService.Upsert(JsonConvert.DeserializeObject<CoffeeMachineProduct>(requestBody));
-            else
-                await _productsService.Upsert(JsonConvert.DeserializeObject<CoffeeProduct>(requestBody));
+            else if (productType == ProductType.CoffeeBeans || productType == ProductType.GroundedCoffee)
+                await _productsService.Upsert(JsonConvert.DeserializeObject<CoffeeProduct>(product));
         }
     }
 }

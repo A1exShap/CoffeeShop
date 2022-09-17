@@ -6,7 +6,7 @@
 
         string NomenclatureNumber { get; }
 
-        ProductType ProductType { get; }
+        Guid ProductType { get; }
 
         string Name { get; }
 

@@ -9,6 +9,7 @@ namespace CoffeeStore.Services
         public static void RegisterServices(this IServiceCollection services)
         {
             services.AddScoped<IProductsService, ProductsService>();
+            services.AddScoped<IPropertiesService, PropertiesService>();
 
             services.RegisterRepositories();
         }

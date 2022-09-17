@@ -10,6 +10,8 @@ namespace CoffeeStore.Services
 
         Task<IEnumerable<IProductItem>> GetProductsByType(Guid productTypeId);
 
+        Task<Domain.ProductType> GetProductType(Guid productTypeId);
+
         Task Upsert(ProductItem productItem);
     }
 }

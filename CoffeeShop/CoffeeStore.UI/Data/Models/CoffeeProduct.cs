@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CoffeeStore.Domain
+namespace CoffeeStore.UI.Data.Models
 {
-    public sealed record CoffeeProduct : ProductItem
+    public record CoffeeProduct : ProductItem
     {
         [JsonPropertyName("sort")]
         public Guid? Sort { get; set; }

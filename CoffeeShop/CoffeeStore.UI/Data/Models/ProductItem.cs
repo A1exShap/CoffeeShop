@@ -7,8 +7,11 @@ public record ProductItem : IProductItem
     [JsonPropertyName("id")]
     public Guid Id { get; init; }
 
+    [JsonPropertyName("nomenclatureNumber")]
+    public string NomenclatureNumber { get; init; }
+
     [JsonPropertyName("productType")]
-    public int ProductType { get; init; }
+    public Guid ProductType { get; init; }
 
     [JsonPropertyName("name")]
     public string Name { get; init; } = string.Empty;

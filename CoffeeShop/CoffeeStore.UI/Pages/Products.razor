@@ -19,7 +19,7 @@
         {
             <tr>
                 <td>@product.Name</td>
-                <td>@product.ProductType.ToString()</td>
+                <td>@_types[product.ProductType]</td>
                 <td>@product.SellingPrice</td>
             </tr>
         }
@@ -31,12 +31,19 @@
 {
     private IEnumerable<IProductItem> _products = Enumerable.Empty<IProductItem>();
 
+    private Dictionary<Guid, string> _types = new();
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        using var response = await HttpClient.GetAsync("/Products");
-        var content = await response.Content.ReadAsStringAsync();
+        using var typesResponse = await HttpClient.GetAsync("/Properties/types");
+        var content = await typesResponse.Content.ReadAsStringAsync();
+        
+        _types = JsonSerializer.Deserialize<Dictionary<Guid, string>>(content) ?? new Dictionary<Guid, string>();
+
+        using var productsResponse = await HttpClient.GetAsync("/Products/default/all");
+        content = await productsResponse.Content.ReadAsStringAsync();
 
         _products = JsonSerializer.Deserialize<ProductItem[]>(content) ?? Array.Empty<ProductItem>();
     }

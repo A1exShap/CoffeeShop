@@ -1,13 +1,11 @@
 ﻿using CoffeeStore.DataAccess.Dto;
-using CoffeeStore.Domain.CoffeeMachines;
-using CoffeeStore.Domain.CoffeeProducts;
 using static CoffeeStore.Domain.ProductPropertyNames;
 
 namespace CoffeeStore.Domain
 {
     public static class ProductItemFactory
     {
-        public static CoffeeProduct CreateCoffeeProduct(Product product, ProductType productType)
+        public static CoffeeProduct CreateCoffeeProduct(Product product, Guid productType)
         {
             var actualPrice = GetActualPrice(product);
 
@@ -19,13 +17,13 @@ namespace CoffeeStore.Domain
                 ProductType = productType,
                 SellingPrice = actualPrice?.SellingPrice ?? 0,
                 VendorPrice = actualPrice?.VendorPrice ?? 0,
-                Sort = GetString(Sort, product),
-                Strength = GetInt(Strength, product),
+                Sort = GetGuid(Sort, product),
+                Strength = GetGuid(Strength, product),
                 Origin = GetString(Origin, product)
             };
         }
 
-        public static CoffeeMachineProduct CreateCoffeeMachine(Product product)
+        public static CoffeeMachineProduct CreateCoffeeMachine(Product product, Guid productType)
         {
             const int defaultGuaranteePeriod = 12;
 
@@ -36,11 +34,11 @@ namespace CoffeeStore.Domain
                 Id = product.Id,
                 Name = product.Name,
                 Description = product.Description,
-                ProductType = ProductType.CoffeeMachine,
+                ProductType = productType,
                 SellingPrice = actualPrice?.SellingPrice ?? 0,
                 VendorPrice = actualPrice?.VendorPrice ?? 0,
                 GuaranteePeriod = GetInt(GuaranteePeriod, product) ?? defaultGuaranteePeriod,
-                MachineType = GetString(ProductPropertyNames.CoffeeMachineType, product) ?? string.Empty,
+                MachineType = GetGuid(ProductPropertyNames.CoffeeMachineType, product),
                 HasCoffeeGrinder = GetBool(CoffeeGrinder, product),
                 HasCappuccinatore = GetBool(Cappuccinatore, product)
             };
@@ -53,6 +51,15 @@ namespace CoffeeStore.Domain
                 .OrderByDescending(price => price.Date);
 
             return prices.FirstOrDefault();
+        }
+
+        private static Guid? GetGuid(string propertyName, Product product)
+        {
+            var propValue = GetPropertyValue(propertyName, product);
+
+            var property = propValue?.Property;
+
+            return propValue?.EnumValue?.Id;
         }
 
         private static string? GetString(string propertyName, Product product)

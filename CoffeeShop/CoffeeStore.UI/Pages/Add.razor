@@ -1,0 +1,335 @@
+﻿@page "/add"
+
+@using Blazorise
+@using CoffeeStore.UI.Data.Models
+@using CoffeeStore.UI.Data.Enums
+@using System.Text.Json
+@using Blazorise.Components;
+@using Blazorise.Modules;
+
+@inject HttpClient HttpClient
+
+<PageTitle>Add new product</PageTitle>
+
+<h1>Add new product</h1>
+
+<form method="post">
+    <p>
+        <SelectList TItem="TypeSelectModel"
+            TValue="Guid"
+            Data="@typesDdlData"
+            TextField="@((item)=>item.TypeName)"
+            ValueField="@((item)=>item.TypeId)"
+            SelectedValue="@selectedTypeId"
+            SelectedValueChanged="@typesListValueChangedHandler"
+            DefaultItemText="Choose product type" />
+    </p>
+    <p>
+        <TextEdit Placeholder="Nomenclature number..." @bind-Text="@nomenclatureNumber" />
+    </p>
+    <p>
+        <TextEdit Placeholder="Name..." @bind-Text="@name" />
+    </p>
+    <p>
+        <TextEdit Placeholder="Description..." @bind-Text="@description" />
+    </p>
+    <p>
+        <NumericPicker Placeholder="Vendor price..." @bind-Value="@vendorPrice" Step="10" />
+    </p>
+    <p>
+        <NumericPicker Placeholder="Selling price..." @bind-Value="@sellingPrice" Step="10" />
+    </p>
+</form>
+
+@if (productType == ProductType.Machine)
+{
+    <form class="mashineProperties">
+        <p>
+            <NumericPicker Placeholder="Guarantee period..." @bind-Value="@guaranteePeriod" />
+        </p>
+        <p>
+            <SelectList TItem="MachineTypeSelectModel"
+                TValue="Guid"
+                Data="@machineTypesDdlData"
+                TextField="@((item)=>item.MachineTypeName)"
+                ValueField="@((item)=>item.MachineTypeId)"
+                SelectedValue="@selectedMachineTypeId"
+                SelectedValueChanged="@machineTypesListValueChangedHandler"
+                DefaultItemText="Choose machine type" />
+        </p>
+        <p>
+            <Switch TValue="bool" @bind-Checked="@hasCoffeeGrinder">Has coffee grinder</Switch>
+        </p>
+        <p>
+            <Switch TValue="bool" @bind-Checked="@hasCappuccinatore">Has cappuccinatore</Switch>
+        </p>
+    </form>
+}
+
+@if (productType == ProductType.Coffee)
+{
+    <form class="coffeeProperties">
+        <p>
+            <TextEdit Placeholder="Origin..." @bind-Text="@origin"/>
+        </p>
+        <p>
+            <SelectList TItem="SortSelectModel"
+                TValue="Guid"
+                Data="@sortDdlData"
+                TextField="@((item)=>item.SortName)"
+                ValueField="@((item)=>item.SortId)"
+                SelectedValue="@selectedSortId"
+                SelectedValueChanged="@sortListValueChangedHandler"
+                DefaultItemText="Choose sort of coffee" />
+        </p>
+        <p>
+            <SelectList TItem="StrengthSelectModel"
+                TValue="Guid"
+                Data="@strengthDdlData"
+                TextField="@((item)=>item.StrengthName)"
+                ValueField="@((item)=>item.StrengthId)"
+                SelectedValue="@selectedStrengthId"
+                SelectedValueChanged="@strengthsListValueChangedHandler"
+                DefaultItemText="Choose product strength" />
+        </p>
+    </form>
+}
+
+<button class="btn btn-primary" disabled=@(productType == ProductType.None) @onclick="Createproduct">Add product</button>
+
+<Alert @ref="alert" Color="Color.Success">
+    <AlertMessage>
+        @alertMessageText
+    </AlertMessage>
+    <AlertDescription>
+        @alertDescriptionText
+    </AlertDescription>
+</Alert>
+
+
+@code 
+{
+    private Alert alert;
+    private string alertMessageText = string.Empty;
+    private string alertDescriptionText = string.Empty;
+
+    private static Dictionary<Guid, string> _types = new();
+    private static Dictionary<Guid, string> _sorts = new();
+    private static Dictionary<Guid, string> _strengths = new();
+    private static Dictionary<Guid, string> _machineTypes = new();
+
+    private static IEnumerable<TypeSelectModel>? typesDdlData;
+    private static IEnumerable<SortSelectModel>? sortDdlData;
+    private static IEnumerable<StrengthSelectModel>? strengthDdlData;
+    private static IEnumerable<MachineTypeSelectModel>? machineTypesDdlData;
+
+    private ProductType productType { get; set; } = ProductType.None;
+
+    private Guid selectedTypeId { get; set; } = Guid.Empty;
+    private Guid selectedSortId { get; set; } = Guid.Empty;
+    private Guid selectedStrengthId { get; set; } = Guid.Empty;
+    private Guid selectedMachineTypeId { get; set; } = Guid.Empty;
+
+    private string? nomenclatureNumber { get; set; }
+    private string? name { get; set; }
+    private string? description { get; set; }
+    private decimal? sellingPrice { get; set; }
+    private decimal? vendorPrice { get; set; }
+
+    private int? guaranteePeriod { get; set; }
+    private bool hasCoffeeGrinder { get; set; }
+    private bool hasCappuccinatore { get; set; }
+
+    private string? origin { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        await FillSelectModels();
+    }
+
+    private async Task FillSelectModels()
+    {
+        var response = await HttpClient.GetAsync("/Properties/types");
+        var content = await response.Content.ReadAsStringAsync();
+        _types = JsonSerializer.Deserialize<Dictionary<Guid, string>>(content) ?? new Dictionary<Guid, string>();
+
+        response = await HttpClient.GetAsync("/Properties/sorts");
+        content = await response.Content.ReadAsStringAsync();
+        _sorts = JsonSerializer.Deserialize<Dictionary<Guid, string>>(content) ?? new Dictionary<Guid, string>();
+
+        response = await HttpClient.GetAsync("/Properties/strengths");
+        content = await response.Content.ReadAsStringAsync();
+        _strengths = JsonSerializer.Deserialize<Dictionary<Guid, string>>(content) ?? new Dictionary<Guid, string>();
+
+        response = await HttpClient.GetAsync("/Properties/machinetypes");
+        content = await response.Content.ReadAsStringAsync();
+        _machineTypes = JsonSerializer.Deserialize<Dictionary<Guid, string>>(content) ?? new Dictionary<Guid, string>();
+
+        typesDdlData = _types.Select(x => new TypeSelectModel { TypeName = x.Value, TypeId = x.Key });
+        sortDdlData = _sorts.Select(x => new SortSelectModel { SortName = x.Value, SortId = x.Key });
+        strengthDdlData = _strengths.Select(x => new StrengthSelectModel { StrengthName = x.Value.Substring(0, x.Value.IndexOf(',')), StrengthId = x.Key });
+        machineTypesDdlData = _machineTypes.Select(x => new MachineTypeSelectModel { MachineTypeName = x.Value, MachineTypeId = x.Key });
+
+        response.Dispose();
+    }
+
+    private async Task Createproduct()
+    {
+        if (!CheckFields()) return;
+
+        var postBody = string.Empty;
+
+        if (productType == ProductType.Machine)
+        {
+            var machine = new CoffeeMachineProduct
+            {
+                ProductType = selectedTypeId,
+                NomenclatureNumber = nomenclatureNumber ?? string.Empty,
+                Name = name ?? string.Empty,
+                Description = description ?? string.Empty,
+                SellingPrice = sellingPrice ?? 0,
+                VendorPrice = vendorPrice ?? 0,
+                GuaranteePeriod = guaranteePeriod ?? 0,
+                MachineType = selectedMachineTypeId,
+                HasCoffeeGrinder = hasCoffeeGrinder,
+                HasCappuccinatore = hasCappuccinatore
+            };
+
+            postBody = JsonSerializer.Serialize<CoffeeMachineProduct>(machine, new JsonSerializerOptions());
+        }
+        else if (productType == ProductType.Coffee)
+        {
+            var coffee = new CoffeeProduct
+            {
+                ProductType = selectedTypeId,
+                NomenclatureNumber = nomenclatureNumber ?? string.Empty,
+                Name = name ?? string.Empty,
+                Description = description ?? string.Empty,
+                SellingPrice = sellingPrice ?? 0,
+                VendorPrice = vendorPrice ?? 0,
+                Origin = origin ?? string.Empty,
+                Sort = selectedSortId,
+                Strength = selectedStrengthId
+            };
+
+            postBody = JsonSerializer.Serialize<CoffeeProduct>(coffee, new JsonSerializerOptions());
+        }
+        else
+            throw new InvalidOperationException("Product type not selected");
+
+        
+
+        using var response = await HttpClient.PostAsJsonAsync($"/Products/{selectedTypeId}/add", postBody);
+        if (response.IsSuccessStatusCode)
+        {
+            alertMessageText = "Success";
+            alertDescriptionText = "The product has been successfully added to the database";
+            alert.Show();
+        }
+    }
+
+    private bool CheckFields()
+    {
+        var emptyFields = new List<string>();
+
+        if (selectedTypeId == Guid.Empty) emptyFields.Add("Product Type");
+        if (nomenclatureNumber == string.Empty) emptyFields.Add("Nomenclature number");
+        if (name is null) emptyFields.Add("Name");
+        if (description is null) emptyFields.Add("Description");
+        if (vendorPrice is null) emptyFields.Add("Vendor price");
+        if (sellingPrice is null) emptyFields.Add("Selling price");
+
+        if (productType == ProductType.Machine)
+        {
+            if (selectedMachineTypeId == Guid.Empty) emptyFields.Add("Coffee machine type");
+            if (guaranteePeriod is null) emptyFields.Add("Guarantee period");
+        }
+
+        if (productType == ProductType.Coffee)
+        {
+            if (origin is null) emptyFields.Add("Origin");
+            if (selectedSortId == Guid.Empty) emptyFields.Add("Sort of coffee");
+            if (selectedStrengthId == Guid.Empty) emptyFields.Add("Coffee strength");
+        }
+
+        if (emptyFields.Count > 0)
+        {
+            alertMessageText = "There are empty fields";
+            alertDescriptionText = "Please complete these fields:";
+            foreach (var field in emptyFields)
+                alertDescriptionText += $"{field}, ";
+
+            alert.Show();
+        }
+
+        return emptyFields.Count == 0;
+    }
+
+    #region SelectModels
+
+    public class TypeSelectModel
+    {
+        public Guid TypeId { get; set; }
+        public string TypeName { get; set; }
+    }
+
+    public class SortSelectModel
+    {
+        public Guid SortId { get; set; }
+        public string SortName { get; set; }
+    }
+
+    public class StrengthSelectModel
+    {
+        public Guid StrengthId { get; set; }
+        public string StrengthName { get; set; }
+    }
+
+    public class MachineTypeSelectModel
+    {
+        public Guid MachineTypeId { get; set; }
+        public string MachineTypeName { get; set; }
+    }
+
+    #endregion
+
+    #region ListValueChangedHandlers
+
+    private void typesListValueChangedHandler( Guid newTypeId )
+    {
+        selectedTypeId = newTypeId;
+
+        productType = newTypeId == Guid.Empty 
+                                    ? ProductType.None
+                                    : _types[newTypeId].Contains("machine") 
+                                            ? ProductType.Machine 
+                                            : ProductType.Coffee;
+        
+        StateHasChanged();
+    }
+
+    private void sortListValueChangedHandler( Guid newSortId )
+    {
+        selectedSortId = newSortId;
+
+        StateHasChanged();
+    }
+
+    private void strengthsListValueChangedHandler( Guid newStrengthId )
+    {
+        selectedStrengthId = newStrengthId;
+
+        StateHasChanged();
+    }
+
+    private void machineTypesListValueChangedHandler( Guid newMachineTypeId )
+    {
+        selectedMachineTypeId = newMachineTypeId;
+
+        StateHasChanged();
+    }
+
+    #endregion
+}

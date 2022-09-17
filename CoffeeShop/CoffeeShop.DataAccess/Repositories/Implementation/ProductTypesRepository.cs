@@ -1,4 +1,5 @@
 ﻿using CoffeeStore.DataAccess.Context;
+using CoffeeStore.DataAccess.Dto;
 using Microsoft.EntityFrameworkCore;
 
 namespace CoffeeStore.DataAccess.Repositories.Implementation
@@ -18,5 +19,9 @@ namespace CoffeeStore.DataAccess.Repositories.Implementation
             => _dbContext.ProductTypes.Where(type => type.Name == productTypeName)
                                           .Select(type => type.Id)
                                           .FirstAsync();
+
+        public Task<ProductType[]> GetProductTypes()
+            => _dbContext.ProductTypes.Select(type => type)
+                                      .ToArrayAsync();
     }
 }

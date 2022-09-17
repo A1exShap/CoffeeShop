@@ -56,32 +56,47 @@ namespace CoffeeStore.Services.Implementation
                 Id = productItem.Id,
                 NomenclatureNumber = productItem.NomenclatureNumber,
                 Name = productItem.Name,
-                ProductTypeId = await GetProductTypeId(productItem.ProductType),
+                ProductTypeId = productItem.ProductType,
                 Description = productItem.Description
             };
 
-            if (productItem is CoffeeMachineProduct coffeeMachine)
+            productItem.Id = await _productsRepository.Upsert(product);
+
+            if (productItem is CoffeeMachineProduct)
             {
-                await SetProperty(coffeeMachine.Id, ProductPropertyNames.CoffeeMachineType, stringValue: coffeeMachine.MachineType);
-                await SetProperty(coffeeMachine.Id, ProductPropertyNames.GuaranteePeriod, numericValue: coffeeMachine.GuaranteePeriod);
+                var coffeeMachine = (CoffeeMachineProduct)productItem;
+
+                await SetProperty(coffeeMachine.Id, ProductPropertyNames.CoffeeMachineType, stringValue: coffeeMachine.MachineType.ToString());
                 await SetProperty(coffeeMachine.Id, ProductPropertyNames.CoffeeGrinder, numericValue: coffeeMachine.HasCoffeeGrinder ? 1 : 0);
                 await SetProperty(coffeeMachine.Id, ProductPropertyNames.Cappuccinatore, numericValue: coffeeMachine.HasCappuccinatore ? 1 : 0);
             }
-            else if (productItem is CoffeeProduct coffeeProduct)
+            else if (productItem is CoffeeProduct)
             {
-                await SetProperty(coffeeProduct.Id, ProductPropertyNames.Sort, stringValue: coffeeProduct.Sort);
-                await SetProperty(coffeeProduct.Id, ProductPropertyNames.Origin, stringValue: coffeeProduct.Origin);
-                await SetProperty(coffeeProduct.Id, ProductPropertyNames.Strength, numericValue: coffeeProduct.Strength);
-            }
+                var coffeeProduct = (CoffeeProduct)productItem;
 
-            await _productsRepository.Upsert(product);
+                await SetProperty(coffeeProduct.Id, ProductPropertyNames.Sort, stringValue: coffeeProduct.Sort.ToString());
+                await SetProperty(coffeeProduct.Id, ProductPropertyNames.Origin, stringValue: coffeeProduct.Origin);
+                await SetProperty(coffeeProduct.Id, ProductPropertyNames.Strength, stringValue: coffeeProduct.Strength.ToString());
+            }
 
             transaction.Complete();
         }
 
+        public async Task<Domain.ProductType> GetProductType(Guid productTypeId)
+        {
+            var type = (await _productTypesRepository.GetProductTypes()).Where(x => x.Id == productTypeId).FirstOrDefault();
+
+            return type.Name switch
+            {
+                ProductTypeNames.CoffeeMachine => Domain.ProductType.CoffeeMachine,
+                ProductTypeNames.CoffeeBeans => Domain.ProductType.CoffeeBeans,
+                ProductTypeNames.GroundCoffee => Domain.ProductType.GroundedCoffee,
+                _ => throw new InvalidOperationException($"Couldn't process product type '{productTypeId}'")
+            };
+        }
+
         private Task<Guid> GetProductTypeId(Domain.ProductType productType)
         {
-            //var typeName = ProductTypeNames.GroundCoffee;
             var productTypeName = productType switch
             {
                 Domain.ProductType.GroundedCoffee => ProductTypeNames.GroundCoffee,
@@ -103,14 +118,14 @@ namespace CoffeeStore.Services.Implementation
                 PropertyId = propertyId,
             };
 
-            var type = (Domain.PropertyValueType?)Enum.GetValues(typeof(Domain.PropertyValueType)).GetValue(valueType);
+            var type = (Domain.PropertyValueType?)valueType;
 
             if (type == Domain.PropertyValueType.String)
                 propertyValue.StringValue = stringValue;
             else if (type == Domain.PropertyValueType.Number)
                 propertyValue.NumericValue = numericValue;
             else if (type == Domain.PropertyValueType.EnumValue)
-                propertyValue.EnumValueId = await _enumValuesRepository.GetEnumValueId(propertyName, stringValue, numericValue);
+                propertyValue.EnumValueId = Guid.Parse(stringValue);
 
             await _productPropertyValuesRepository.Upsert(propertyValue);
         }

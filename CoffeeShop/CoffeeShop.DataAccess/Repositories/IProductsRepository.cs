@@ -10,7 +10,7 @@ namespace CoffeeStore.DataAccess.Repositories
 
         Task<Product[]> GetProductsByType(Guid productTypeId);
 
-        Task Upsert(Product product);
+        Task<Guid> Upsert(Product product);
 
         Task Delete(Product product);
     }

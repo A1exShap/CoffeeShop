@@ -4,7 +4,9 @@
     {
         Guid Id { get; }
 
-        int ProductType { get; }
+        string NomenclatureNumber { get; }
+
+        Guid ProductType { get; }
 
         string Name { get; }
 
